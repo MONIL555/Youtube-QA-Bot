@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
-import TokenBlacklist from '../models/TokenBlacklist.js';
 import User from '../models/User.js';
+
+// Token format validation — must look like a JWT (three dot-separated base64url segments)
+const JWT_FORMAT = /^[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+$/;
 
 export const protect = async (req, res, next) => {
   try {
@@ -10,9 +12,14 @@ export const protect = async (req, res, next) => {
 
     if (!token) return res.status(401).json({ success: false, error: 'Not authenticated' });
 
-    // Check blacklist
-    const isBlacklisted = await TokenBlacklist.findOne({ token });
-    if (isBlacklisted) return res.status(401).json({ success: false, error: 'Token revoked' });
+    // Quick format check before doing any crypto work
+    if (!JWT_FORMAT.test(token)) {
+      return res.status(401).json({ success: false, error: 'Invalid token format' });
+    }
+
+    // NOTE: Access tokens are short-lived (15m) and NOT blacklisted.
+    // Only refresh tokens go through blacklist rotation (in authController).
+    // Removing the unnecessary TokenBlacklist.findOne() query here saves a DB call on every request.
 
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
     req.user = await User.findById(decoded.id).select('-password');
