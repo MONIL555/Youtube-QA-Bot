@@ -1,8 +1,9 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { AppError } from '../middleware/errorHandler.js';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const SYSTEM_PROMPT = (video) => `
+const SYSTEM_PROMPT = (video, language) => `
 You are a YouTube video Q&A assistant. Your ONLY job is to answer questions based strictly on the transcript of this video.
 
 Rules:
@@ -11,7 +12,7 @@ Rules:
 3. Be concise, accurate, and helpful.
 4. Reference specific parts of the transcript when relevant.
 5. Maintain conversational context from the history provided.
-6. ALWAYS answer in English, regardless of the language of the video transcript or the user's question.
+6. ALWAYS answer in ${language}, regardless of the language of the video transcript or the user's question.
 
 Video Title: ${video.title}
 Channel: ${video.channel}
@@ -21,10 +22,10 @@ Full Transcript:
 ${video.transcript}
 `.trim();
 
-export const streamGeminiResponse = async (video, history, userMessage, res) => {
+export const streamGeminiResponse = async (video, history, userMessage, res, language = 'English') => {
   const model = genAI.getGenerativeModel({
     model: 'gemini-2.5-flash',
-    systemInstruction: SYSTEM_PROMPT(video),
+    systemInstruction: SYSTEM_PROMPT(video, language),
   });
 
   // Build Gemini-compatible history and ensure strict alternating roles
@@ -42,10 +43,6 @@ export const streamGeminiResponse = async (video, history, userMessage, res) => 
   }
 
   // Gemini history MUST NOT end with a 'model' role if the next message is from 'user'
-  // Actually, since we are sending a 'user' message next, the history MUST end with a 'model' role,
-  // OR the history must end with 'user' but then we can't send a 'user' message?
-  // Wait, if we send a 'user' message via sendMessageStream, the history must end with 'model'.
-  // If the sanitized history ends with 'user', we should pop it.
   if (geminiHistory.length > 0 && geminiHistory[geminiHistory.length - 1].role === 'user') {
     geminiHistory.pop();
   }
@@ -55,9 +52,19 @@ export const streamGeminiResponse = async (video, history, userMessage, res) => 
     history: geminiHistory,
   });
 
-  const enforcedMessage = `${userMessage}\n\n[SYSTEM DIRECTIVE: You MUST respond entirely in English. Do not use Hindi or any other language, even if the video transcript is in another language.]`;
+  const enforcedMessage = `${userMessage}\n\n[SYSTEM DIRECTIVE: You MUST respond entirely in ${language}. Do not use any other language, even if the video transcript is in another language.]`;
   
-  const result = await chat.sendMessageStream(enforcedMessage);
+  let result;
+  try {
+    result = await chat.sendMessageStream(enforcedMessage);
+  } catch (err) {
+    if (err.message?.includes('503') || err.message?.includes('high demand') || err.message?.includes('overloaded')) {
+      throw new AppError('The AI model is currently experiencing high demand. Please try again in a few moments.', 503);
+    }
+    // Generic error for other failures to hide API URLs from the client
+    console.error('Gemini API Error:', err.message);
+    throw new AppError('Failed to communicate with the AI model. Please try again.', 502);
+  }
 
   // SSE streaming
   res.setHeader('Content-Type', 'text/event-stream');
