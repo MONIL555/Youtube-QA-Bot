@@ -5,6 +5,7 @@ const MAX_MESSAGES = 200; // Cap messages per conversation to prevent unbounded 
 const messageSchema = new mongoose.Schema({
   role: { type: String, enum: ['user', 'assistant'], required: true },
   content: { type: String, required: true, maxlength: 10000 },
+  feedback: { type: String, enum: ['good', 'bad', null], default: null },
   timestamp: { type: Date, default: Date.now },
 });
 
