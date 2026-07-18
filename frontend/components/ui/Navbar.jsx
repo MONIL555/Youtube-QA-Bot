@@ -16,15 +16,12 @@ export default function Navbar() {
   };
 
   return (
-    <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'center', position: 'sticky', top: 0, zIndex: 50 }}>
-      <nav className="glass" style={{
-        position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
-        padding: '8px 12px 8px 16px', borderRadius: '100px', width: '100%', maxWidth: '1000px',
-        background: 'rgba(255, 255, 255, 0.75)', backdropFilter: 'blur(16px)',
-        boxShadow: '0 8px 32px -8px rgba(0, 0, 0, 0.08)',
-        border: '1px solid rgba(255, 255, 255, 0.6)'
+    <header style={{ position: 'sticky', top: 0, zIndex: 50, width: '100%', background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(0, 0, 0, 0.06)' }}>
+      <nav className="navbar-container" style={{
+        position: 'relative', display: 'flex', alignItems: 'center',
+        padding: '16px 32px', width: '100%', maxWidth: '1200px', margin: '0 auto'
       }}>
-        <Link href="/dashboard" style={{ textDecoration: 'none', position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center' }}>
+        <Link href="/dashboard" className="navbar-logo" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
           <span className="gradient-text" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.03em', whiteSpace: 'nowrap' }}>
             TubeTalks
           </span>
@@ -51,9 +48,13 @@ export default function Navbar() {
       </nav>
       {/* CSS for responsive elements */}
       <style>{`
+        .navbar-container { justify-content: space-between !important; }
+        .navbar-logo { position: static; transform: none; }
         .navbar-username { display: none; }
         .signout-icon { display: none; }
         @media (max-width: 600px) {
+          .navbar-container { padding: 12px 16px !important; justify-content: flex-end !important; }
+          .navbar-logo { position: absolute !important; left: 50% !important; transform: translateX(-50%) !important; }
           .signout-text { display: none; }
           .signout-icon { display: block; }
           .signout-btn { padding: 8px !important; }
@@ -62,6 +63,6 @@ export default function Navbar() {
           .navbar-username { display: inline !important; } 
         }
       `}</style>
-    </div>
+    </header>
   );
 }

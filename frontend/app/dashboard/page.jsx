@@ -81,40 +81,40 @@ export default function DashboardPage() {
   if (!user) return null;
 
   return (
-    <div className="app-container">
-      <div className="ambient-bg">
-        <div className="ambient-blob blob-1"></div>
-        <div className="ambient-blob blob-2"></div>
-      </div>
+    <div className="app-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="ambient-bg"></div>
       
       <Navbar />
       
       <style>{`
         .analyze-text { display: inline; }
         .analyze-btn { padding: 0 24px; }
+        .recent-search-input { min-width: 200px; flex: 0 1 300px; }
         @media (max-width: 600px) {
           .analyze-text { display: none; }
           .analyze-btn { padding: 0 16px !important; gap: 0 !important; }
+          .recent-search-input { flex: 1 1 100%; max-width: none; }
+          .hero-title { font-size: clamp(32px, 10vw, 48px) !important; white-space: nowrap; }
         }
       `}</style>
-      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '8px 24px 32px 24px', width: '100%', flex: 1 }}>
+      <main style={{ maxWidth: '900px', margin: '0 auto', padding: '24px 24px 64px 24px', width: '100%', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         {/* Hero */}
-        <div className="fade-in-up" style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '4px 12px', background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.15)', borderRadius: '100px', color: 'var(--accent-purple)', fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>
-            <Sparkles size={14} /> Welcome back, {user?.name?.split(' ')[0] || 'User'}
+        <div className="fade-in-up" style={{ textAlign: 'center', marginBottom: '56px', width: '100%' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '6px 16px', background: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.08)', borderRadius: '100px', color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 600, marginBottom: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+            <Sparkles size={16} color="var(--accent-purple)" /> Welcome back, {user?.name?.split(' ')[0] || 'User'}
           </div>
-          <h1 style={{ fontSize: 'clamp(32px, 8vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '12px', marginTop: 0, whiteSpace: 'nowrap' }}>
+          <h1 className="hero-title" style={{ fontSize: 'clamp(48px, 8vw, 72px)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.1, marginBottom: '20px', marginTop: 0, color: 'var(--text-primary)' }}>
             Meet <span className="gradient-text">TubeTalks</span>
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '16px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.5, fontWeight: 400 }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '18px', maxWidth: '600px', margin: '0 auto', lineHeight: 1.6, fontWeight: 400 }}>
             Your personal AI assistant for YouTube videos. Paste a URL and let the magic happen.
-            <br/><span style={{fontSize: '12px', opacity: 0.7}}>Shortcuts: press <code>/</code> for URL, <code>Ctrl+K</code> for search</span>
+            <br/><span style={{fontSize: '13px', opacity: 0.8, display: 'inline-block', marginTop: '16px'}}>Shortcuts: press <code style={{background: 'rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.1)', padding: '2px 8px', borderRadius: '6px', fontWeight: 600}}>/</code> for URL, <code style={{background: 'rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.1)', padding: '2px 8px', borderRadius: '6px', fontWeight: 600}}>Ctrl+K</code> for search</span>
           </p>
         </div>
 
         {/* URL Input */}
-        <div className="glass fade-in-up" style={{ padding: '6px', marginBottom: '48px', maxWidth: '640px', margin: '0 auto 48px auto', borderRadius: '100px', background: 'var(--bg-secondary)' }}>
-          <div style={{ display: 'flex', gap: '6px', position: 'relative' }}>
+        <div className="fade-in-up" style={{ padding: '8px', marginBottom: '64px', width: '100%', maxWidth: '800px', borderRadius: '24px', background: '#FFFFFF', boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05)' }}>
+          <div style={{ display: 'flex', gap: '8px', position: 'relative' }}>
             <input
               id="video-url-input"
               ref={urlInputRef}
@@ -122,28 +122,28 @@ export default function DashboardPage() {
               value={url}
               onChange={e => setUrl(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleProcess()}
-              placeholder="https://www.youtube.com/watch?v=..."
+              placeholder="Paste any YouTube URL here..."
               style={{
-                flex: 1, padding: '12px 20px',
+                flex: 1, padding: '16px 24px',
                 background: 'transparent',
                 border: 'none',
                 color: 'var(--text-primary)',
-                fontSize: '15px', outline: 'none',
+                fontSize: '16px', outline: 'none',
                 minWidth: 0,
                 textOverflow: 'ellipsis'
               }}
             />
             <button id="analyze-btn" onClick={handleProcess} className="btn-primary analyze-btn" disabled={processing}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', borderRadius: '100px', margin: '3px', flexShrink: 0, whiteSpace: 'nowrap' }}>
-              {processing ? '...' : (
-                <><span className="analyze-text">Analyze</span> <Sparkles size={16} /></>
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '16px', margin: '4px', padding: '0 32px', flexShrink: 0, whiteSpace: 'nowrap', fontSize: '15px', fontWeight: 600, boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)' }}>
+              {processing ? 'Processing...' : (
+                <><span className="analyze-text">Analyze Video</span> <Sparkles size={18} /></>
               )}
             </button>
           </div>
         </div>
 
         {/* History */}
-        <div className="fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <div className="fade-in-up" style={{ animationDelay: '0.1s', width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
             <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
               Recent Videos
@@ -154,10 +154,11 @@ export default function DashboardPage() {
               placeholder="Search history..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="recent-search-input"
               style={{
                 padding: '8px 16px', borderRadius: '100px', border: '1px solid var(--glass-border)',
                 background: 'var(--bg-secondary)', fontSize: '13px', color: 'var(--text-primary)',
-                outline: 'none', minWidth: '200px', flex: '1 1 200px'
+                outline: 'none'
               }}
             />
           </div>

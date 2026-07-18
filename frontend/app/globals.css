@@ -33,47 +33,31 @@ body {
   position: relative;
 }
 
-/* Ambient Background Blobs (Lighter) */
+/* Dot Pattern Background for Premium Light Mode */
 .ambient-bg {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  overflow: hidden;
   z-index: 0;
   pointer-events: none;
-}
-.ambient-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.12;
-  animation: float 20s infinite ease-in-out alternate;
-}
-.blob-1 {
-  top: -10%; left: -10%;
-  width: 50vw; height: 50vw;
-  background: var(--accent-purple);
-}
-.blob-2 {
-  bottom: -20%; right: -10%;
-  width: 60vw; height: 60vw;
-  background: var(--accent-cyan);
-  animation-delay: -5s;
+  background-color: #FAFAFA;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 100% 100% at 50% 0%, black 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 100% 100% at 50% 0%, black 40%, transparent 100%);
 }
 
-/* Glassmorphism card for light theme */
+/* Sleek white cards for light theme */
 .glass {
-  background: var(--glass-bg);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border: 1px solid var(--glass-border);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: var(--radius-md);
-  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
   transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .glass:hover {
-  border-color: var(--glass-hover);
-  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.06);
 }
 
 /* Gradient text */
