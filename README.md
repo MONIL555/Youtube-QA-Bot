@@ -1,4 +1,4 @@
-<h1 align="center">FIY-Talks (Youtube-QA-Bot) 🤖</h1>
+<h1 align="center">FIY-Talks (QA-Bot) 🤖</h1>
 
 <p align="center">
   <strong>The Ultimate AI QA Assistant for YouTube, Instagram, and Local Documents.</strong><br>
