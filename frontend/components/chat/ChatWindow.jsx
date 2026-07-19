@@ -2,12 +2,24 @@
 import { useEffect, useRef } from 'react';
 import MessageBubble from './MessageBubble';
 
-export default function ChatWindow({ messages, onFeedback, onRegenerate }) {
+export default function ChatWindow({ messages, contextType = 'video', onFeedback, onRegenerate }) {
   const bottomRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const getEmptyState = () => {
+    if (contextType === 'insta') {
+      return { emoji: '📸', title: 'Ask anything about this post', subtitle: "I'll only answer based on the post content." };
+    }
+    if (contextType === 'doc') {
+      return { emoji: '📄', title: 'Ask anything about this document', subtitle: "I'll only answer based on the document content." };
+    }
+    return { emoji: '🎬', title: 'Ask anything about this video', subtitle: "I'll only answer based on the video content." };
+  };
+
+  const emptyState = getEmptyState();
 
   return (
     <div style={{
@@ -26,9 +38,9 @@ export default function ChatWindow({ messages, onFeedback, onRegenerate }) {
             color: 'var(--text-muted)', textAlign: 'center', gap: '12px',
             marginTop: '100px'
           }}>
-            <div style={{ fontSize: '48px' }}>🎬</div>
-            <p style={{ fontSize: '16px' }}>Ask anything about this video</p>
-            <p style={{ fontSize: '13px' }}>I'll only answer based on the video content.</p>
+            <div style={{ fontSize: '48px' }}>{emptyState.emoji}</div>
+            <p style={{ fontSize: '16px' }}>{emptyState.title}</p>
+            <p style={{ fontSize: '13px' }}>{emptyState.subtitle}</p>
           </div>
         )}
         {messages.map((msg, i) => (

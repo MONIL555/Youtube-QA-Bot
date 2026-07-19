@@ -10,12 +10,14 @@ import VideoCard from '../../../components/video/VideoCard';
 import DownloadModal from '../../../components/video/DownloadModal';
 import toast from 'react-hot-toast';
 import { LayoutDashboard, LogOut, ChevronUp, ChevronDown, Download, Trash2 } from 'lucide-react';
+import ChatSkeleton from '../../../components/ui/ChatSkeleton';
 
 export default function ChatPage() {
   const { videoId } = useParams();
   const { user, loading: authLoading, logout, refreshTokens } = useAuth();
   const router = useRouter();
   const [video, setVideo] = useState(null);
+  const [contextType, setContextType] = useState('video');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -40,14 +42,15 @@ export default function ChatPage() {
     if (!user) return;
     (async () => {
       try {
-        const [videoRes, historyRes] = await Promise.all([
-          api.get(`/video/info/${videoId}`),
+        const [infoRes, historyRes] = await Promise.all([
+          api.get(`/chat/info/${videoId}`),
           api.get(`/chat/history/${videoId}`),
         ]);
-        setVideo(videoRes.data.video);
+        setVideo(infoRes.data.video);
+        setContextType(infoRes.data.type || 'video');
         setMessages(historyRes.data.messages || []);
       } catch (err) {
-        toast.error('Failed to load video or chat history');
+        toast.error('Failed to load context or chat history');
       } finally { setLoading(false); }
     })();
   }, [videoId, user]);
@@ -142,6 +145,12 @@ export default function ChatPage() {
       setMessages(prev => prev.map(m =>
         m.id === placeholderId ? { ...m, streaming: false, id: undefined } : m
       ));
+      
+      // Refresh history to get database _id for newly created messages
+      try {
+        const historyRes = await api.get(`/chat/history/${videoId}`);
+        if (historyRes.data.messages) setMessages(historyRes.data.messages);
+      } catch (e) {}
     } catch (err) {
       if (err.name !== 'AbortError') {
         toast.error(err.message || 'Failed to get response');
@@ -223,6 +232,12 @@ export default function ChatPage() {
       setMessages(prev => prev.map(m =>
         m.id === placeholderId ? { ...m, streaming: false, id: undefined } : m
       ));
+
+      // Refresh history to get database _id for newly created messages
+      try {
+        const historyRes = await api.get(`/chat/history/${videoId}`);
+        if (historyRes.data.messages) setMessages(historyRes.data.messages);
+      } catch (e) {}
     } catch (err) {
       if (err.name !== 'AbortError') {
         toast.error(err.message || 'Failed to regenerate response');
@@ -245,7 +260,7 @@ export default function ChatPage() {
 
 
 
-  if (authLoading || loading) return <div style={{ textAlign: 'center', padding: '100px', color: 'var(--text-secondary)' }}>Loading...</div>;
+  if (authLoading || loading) return <ChatSkeleton />;
   if (!user) return null;
 
   return (
@@ -256,7 +271,7 @@ export default function ChatPage() {
           {/* Brand & Navigation */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div onClick={() => router.push('/dashboard')} style={{ cursor: 'pointer' }} title="Go to Dashboard">
-              <span className="gradient-text" style={{ fontSize: '24px', fontWeight: 800 }}>TubeTalks</span>
+              <span className="gradient-text" style={{ fontSize: '24px', fontWeight: 800 }}>FIY-Talks</span>
               <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: 0 }}>Personal AI Assistant</p>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
@@ -276,15 +291,19 @@ export default function ChatPage() {
                   onClick={() => setShowVideoInfo(!showVideoInfo)}
                   style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', userSelect: 'none' }}
                 >
-                  <h3 style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Current Video</h3>
+                  <h3 style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+                    {contextType === 'doc' ? 'Current Document' : contextType === 'insta' ? 'Current Post' : 'Current Video'}
+                  </h3>
                   {showVideoInfo ? <ChevronUp size={16} color="var(--text-muted)" /> : <ChevronDown size={16} color="var(--text-muted)" />}
                 </div>
                 
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  <button onClick={() => setShowDownload(true)} title="Download Video" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '12px', fontWeight: 500 }}>
-                    <Download size={14} />
-                    <span className="desktop-text" style={{ whiteSpace: 'nowrap' }}>Download</span>
-                  </button>
+                  {contextType !== 'doc' && (
+                    <button onClick={() => setShowDownload(true)} title="Download Media" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '12px', fontWeight: 500 }}>
+                      <Download size={14} />
+                      <span className="desktop-text" style={{ whiteSpace: 'nowrap' }}>Download</span>
+                    </button>
+                  )}
                   <button onClick={clearHistory} title="Clear Chat" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 'var(--radius-sm)', color: '#ef4444', cursor: 'pointer', fontSize: '12px', fontWeight: 500 }}>
                     <Trash2 size={14} />
                     <span className="desktop-text" style={{ whiteSpace: 'nowrap' }}>Clear Chat</span>
@@ -301,6 +320,7 @@ export default function ChatPage() {
         <main className="chat-main">
           <ChatWindow 
             messages={messages} 
+            contextType={contextType}
             onFeedback={handleFeedback}
             onRegenerate={handleRegenerate} 
           />

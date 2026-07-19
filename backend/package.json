@@ -5,10 +5,10 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "node --watch src/app.js"
+    "dev": "node --watch-path=src src/app.js"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.15.0",
+    "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -19,7 +19,12 @@
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.12.0",
     "mongoose": "^8.3.4",
+    "multer": "^2.2.0",
+    "officeparser": "^7.3.0",
+    "pdf-parse": "^2.4.5",
+    "snapsave-media-downloader": "^2.4.0",
     "uuid": "^9.0.1",
     "youtube-transcript": "^1.2.1"
   }

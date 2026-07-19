@@ -23,7 +23,7 @@ export default function Navbar() {
       }}>
         <Link href="/dashboard" className="navbar-logo" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
           <span className="gradient-text" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.03em', whiteSpace: 'nowrap' }}>
-            TubeTalks
+            FIY-Talks
           </span>
         </Link>
         {user && (

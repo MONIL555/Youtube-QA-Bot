@@ -56,7 +56,9 @@ api.interceptors.response.use(
       import('react-hot-toast').then(({ default: toast }) => {
         toast.error(msg, { duration: 5000, id: 'rate-limit-toast' });
       });
-      return Promise.reject(new Error(msg));
+      // Mutate the error so the caller can still read the original response but gets a cleaner message
+      error.message = msg;
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);

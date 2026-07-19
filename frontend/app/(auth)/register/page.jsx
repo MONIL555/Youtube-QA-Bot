@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../../lib/authContext';
@@ -11,16 +11,25 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const router = useRouter();
 
+  const submittingRef = useRef(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setLoading(true);
     try {
       await register(form.name, form.email, form.password);
       toast.success('Account created!');
       router.push('/dashboard');
     } catch (err) {
-      toast.error(err.response?.data?.error || err.response?.data?.errors?.[0]?.message || 'Registration failed');
-    } finally { setLoading(false); }
+      if (err.response?.status !== 429) {
+        toast.error(err.response?.data?.error || err.response?.data?.errors?.[0]?.message || 'Registration failed');
+      }
+    } finally { 
+      setLoading(false); 
+      submittingRef.current = false;
+    }
   };
 
   return (
@@ -31,8 +40,8 @@ export default function RegisterPage() {
       <div className="glass fade-in-up" style={{ width: '100%', maxWidth: '420px', padding: '40px' }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <h1 className="gradient-text" style={{ fontSize: '28px', fontWeight: 700, marginBottom: '8px' }}>
-            TubeTalks
+          <h1 style={{ textAlign: 'center', fontSize: '28px', fontWeight: '800', marginBottom: '8px' }}>
+            <span className="gradient-text">FIY-Talks</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
             Create Account

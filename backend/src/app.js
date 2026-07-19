@@ -10,7 +10,10 @@ import authRoutes from './routes/auth.js';
 import videoRoutes from './routes/video.js';
 import chatRoutes from './routes/chat.js';
 import downloadRoutes from './routes/download.js';
+import instaRoutes from './routes/insta.js';
+import fileRoutes from './routes/file.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { cleanupTempFiles } from './utils/cleanup.js';
 
 import fs from 'fs';
 import path from 'path';
@@ -80,6 +83,7 @@ console.error = function(...args) {
 };
 
 connectDB();
+cleanupTempFiles();
 
 const app = express();
 
@@ -92,7 +96,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https://i.ytimg.com", "https://*.ytimg.com"],
-      connectSrc: ["'self'", process.env.FRONTEND_URL || "http://localhost:3000"],
+      connectSrc: ["'self'", process.env.FRONTEND_URL, "http://localhost:3000", "http://localhost:3001", "http://localhost:3002"].filter(Boolean),
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
@@ -112,7 +116,10 @@ app.use(helmet({
     ? { maxAge: 31536000, includeSubDomains: true, preload: true }
     : false,
 }));
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+app.use(cors({ 
+  origin: [process.env.FRONTEND_URL, 'http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'].filter(Boolean), 
+  credentials: true 
+}));
 app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser());
 app.use(mongoSanitize());
@@ -126,6 +133,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/video', videoRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/download', downloadRoutes);
+app.use('/api/insta', instaRoutes);
+app.use('/api/file', fileRoutes);
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'ok' }));

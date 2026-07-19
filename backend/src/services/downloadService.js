@@ -7,21 +7,25 @@ const FORMAT_MAP = {
   '360p':  'b[height<=360][ext=mp4]/b[height<=360]',
   '240p':  'b[height<=240][ext=mp4]/b[height<=240]',
   'audio': 'bestaudio[ext=m4a]/bestaudio',
+  'highest': 'best', // Added for Instagram
+  'second_highest': 'bestvideo[height<=720]+bestaudio/best[height<=720]/best', // Added for Instagram
 };
 
-// Strict YouTube URL validation
+// Strict YouTube & Instagram URL validation
 const SAFE_YOUTUBE_URL = /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=[a-zA-Z0-9_-]{11}|youtu\.be\/[a-zA-Z0-9_-]{11}|youtube\.com\/shorts\/[a-zA-Z0-9_-]{11}|youtube\.com\/embed\/[a-zA-Z0-9_-]{11})/;
+const SAFE_INSTA_URL = /^https?:\/\/(www\.)?instagram\.com\//;
 
 const DOWNLOAD_TIMEOUT = 300_000; // 5 min max download time
 
 export const streamDownload = (url, format, res, filename) => {
+  if (url) url = url.trim();
   // Validate URL before passing to subprocess
-  if (!url || typeof url !== 'string' || !SAFE_YOUTUBE_URL.test(url)) {
-    return res.status(400).json({ success: false, error: 'Invalid YouTube URL' });
+  if (!url || typeof url !== 'string' || (!SAFE_YOUTUBE_URL.test(url) && !SAFE_INSTA_URL.test(url))) {
+    return res.status(400).json({ success: false, error: 'Invalid URL. Please ensure it is a valid YouTube or Instagram URL.' });
   }
 
   // Validate format against whitelist
-  const ytFormat = FORMAT_MAP[format];
+  const ytFormat = FORMAT_MAP[format] || 'best';
   if (!ytFormat) {
     return res.status(400).json({ success: false, error: 'Invalid format' });
   }

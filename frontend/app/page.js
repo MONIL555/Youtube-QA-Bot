@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../lib/authContext';
 
+import DashboardSkeleton from '../components/ui/DashboardSkeleton';
+
 export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -13,12 +15,5 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
-  return (
-    <div style={{
-      minHeight: '100vh', display: 'flex', alignItems: 'center',
-      justifyContent: 'center', color: 'var(--text-secondary)',
-    }}>
-      Loading...
-    </div>
-  );
+  return <DashboardSkeleton />;
 }

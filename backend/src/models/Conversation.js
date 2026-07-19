@@ -11,7 +11,7 @@ const messageSchema = new mongoose.Schema({
 
 const conversationSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-  videoId: { type: String, required: true, index: true, match: /^[a-zA-Z0-9_-]{11}$/ },
+  videoId: { type: String, required: true, index: true },
   messages: {
     type: [messageSchema],
     validate: {

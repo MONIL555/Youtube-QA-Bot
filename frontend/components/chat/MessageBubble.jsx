@@ -63,7 +63,7 @@ export default function MessageBubble({ message, isLatestAssistant, onFeedback, 
             {isUser ? '👤' : '✨'}
           </div>
           <span style={{ fontSize: '13px', fontWeight: '600', color: isUser ? 'var(--text-muted)' : 'var(--accent-purple)' }}>
-            {isUser ? 'You' : 'TubeTalks AI'}
+            {isUser ? 'You' : 'FIY-Talks AI'}
           </span>
         </div>
 

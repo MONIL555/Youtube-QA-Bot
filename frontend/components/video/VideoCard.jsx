@@ -1,6 +1,7 @@
-import { Play } from 'lucide-react';
+import React from 'react';
+import { Play, FileText } from 'lucide-react';
 
-export default function VideoCard({ video, onClick, compact }) {
+export default React.memo(function VideoCard({ video, onClick, compact }) {
   return (
     <div
       className="glass"
@@ -13,7 +14,21 @@ export default function VideoCard({ video, onClick, compact }) {
         background: 'var(--bg-secondary)'
       }}
     >
-      {video.thumbnail && (
+      {video.mediaType === 'document' ? (
+        <div style={{
+          width: compact ? '70px' : '120px',
+          aspectRatio: '16/9',
+          background: 'var(--bg-primary)',
+          border: '1px solid var(--glass-border)',
+          borderRadius: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0
+        }}>
+          <FileText size={compact ? 24 : 32} color="var(--text-secondary)" />
+        </div>
+      ) : video.thumbnail && (
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <img src={video.thumbnail} alt={video.title}
             style={{
@@ -62,4 +77,4 @@ export default function VideoCard({ video, onClick, compact }) {
       `}</style>
     </div>
   );
-}
+});
